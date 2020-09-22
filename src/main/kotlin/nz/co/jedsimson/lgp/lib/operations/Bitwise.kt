@@ -32,7 +32,8 @@ class Not : UnaryOperation<Double>(Not.Companion::not) {
     )
 
     override fun toString(operands: List<RegisterIndex>, destination: RegisterIndex): String {
-        return "r[$destination] = r[${ operands[0] }] > 0.0 ? 0.0 : 1.0"
+        //return "r[$destination] = r[${ operands[0] }] > 0.0 ? 0.0 : 1.0"
+        return "$destination ~ ${ operands[0] }"
     }
 }
 
@@ -54,7 +55,8 @@ class And : BinaryOperation<Double>(And.Companion::and) {
     )
 
     override fun toString(operands: List<RegisterIndex>, destination: RegisterIndex): String {
-        return "r[$destination] = (r[${ operands[0] }] > 0.0 & r[${ operands[1] }] > 0.0) ? 1.0 : 0.0"
+        //return "r[$destination] = (r[${ operands[0] }] > 0.0 & r[${ operands[1] }] > 0.0) ? 1.0 : 0.0"
+        return "$destination ${ operands[0] } & ${ operands[1] }"
     }
 }
 
@@ -76,7 +78,8 @@ class Or : BinaryOperation<Double>(Or.Companion::or) {
     )
 
     override fun toString(operands: List<RegisterIndex>, destination: RegisterIndex): String {
-        return "r[$destination] = (r[${ operands[0] }] > 0.0 | r[${ operands[1] }] > 0.0) ? 1.0 : 0.0"
+        //return "r[$destination] = (r[${ operands[0] }] > 0.0 | r[${ operands[1] }] > 0.0) ? 1.0 : 0.0"
+        return "$destination ${ operands[0] } | ${ operands[1] }"
     }
 }
 
@@ -98,9 +101,56 @@ class ExclusiveOr : BinaryOperation<Double>(ExclusiveOr.Companion::xor) {
     )
 
     override fun toString(operands: List<RegisterIndex>, destination: RegisterIndex): String {
-        return "r[$destination] = (r[${ operands[0] }] > 0.0 ^ r[${ operands[1] }] > 0.0) ? 1.0 : 0.0"
+        //return "r[$destination] = (r[${ operands[0] }] > 0.0 ^ r[${ operands[1] }] > 0.0) ? 1.0 : 0.0"
+        return "$destination ${ operands[0] } ^ ${ operands[1] }"
     }
 }
+
+class Nor : BinaryOperation<Double>(Nor.Companion::nor) {
+
+    companion object {
+        fun nor(args: Arguments<Double>): Double {
+            val a = args.get(0).toBoolean()
+            val b = args.get(1).toBoolean()
+
+            return (a.or(b)).not().toDouble()
+        }
+    }
+
+    override val representation = " _ "
+
+    override val information = ModuleInformation(
+            description = "An operation for performing the bitwise nor function on two Double arguments."
+    )
+
+    override fun toString(operands: List<RegisterIndex>, destination: RegisterIndex): String {
+        return "$destination ${ operands[0] } _ ${ operands[1] }"
+    }
+}
+
+class Nand : BinaryOperation<Double>(Nand.Companion::nand) {
+
+    companion object {
+        fun nand(args: Arguments<Double>): Double {
+            val a = args.get(0).toBoolean()
+            val b = args.get(1).toBoolean()
+
+            return (a.and(b)).not().toDouble()
+        }
+    }
+
+    override val representation = " $ "
+
+    override val information = ModuleInformation(
+            description = "An operation for performing the bitwise nand function on two Double arguments."
+    )
+
+    override fun toString(operands: List<RegisterIndex>, destination: RegisterIndex): String {
+        return "$destination ${ operands[0] } $ ${ operands[1] }"
+    }
+}
+
+
 
 fun Double.toBoolean(): Boolean {
     return this > 0
